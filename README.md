@@ -5,3 +5,4 @@ Dependencies:
 
 * librealsense
 * freeglut
+* zlib (optional strongly recommended)

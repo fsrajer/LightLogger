@@ -6,10 +6,12 @@
 #include <cstdint>
 #include <fstream>
 #include <thread>
+#include <vector>
 
 #include "CameraInterface.h"
 
 using std::string;
+using std::vector;
 
 /**
 * Format is:
@@ -47,4 +49,6 @@ private:
   std::ofstream file;
   std::thread *writeThread;
   std::shared_ptr<CameraInterface> cam;
+
+  vector<uint8_t> depthCompressBuffer;
 };
