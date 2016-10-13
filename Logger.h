@@ -6,10 +6,16 @@
 #include <cstdint>
 #include <fstream>
 #include <thread>
+#include <vector>
+
+#ifdef WITH_JPEG
+#  include "jpeglib.h"
+#endif
 
 #include "CameraInterface.h"
 
 using std::string;
+using std::vector;
 
 /**
 * Format is:
@@ -39,6 +45,7 @@ public:
 
 private:
   void write();
+  void compressJpeg(const uint8_t *source,int32_t *finalSize);
 
   std::atomic<bool> doWrite;
   string outDir;
@@ -47,4 +54,7 @@ private:
   std::ofstream file;
   std::thread *writeThread;
   std::shared_ptr<CameraInterface> cam;
+
+  vector<uint8_t> depthCompressBuffer;
+  vector<uint8_t> rgbCompressBuffer;
 };

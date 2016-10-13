@@ -2,6 +2,10 @@
 
 #include <iostream>
 
+#ifdef WITH_ZLIB
+#  include "zlib.h"
+#endif
+
 using std::cout;
 
 Logger::Logger(string outDir,std::shared_ptr<CameraInterface> cam)
@@ -12,6 +16,8 @@ Logger::Logger(string outDir,std::shared_ptr<CameraInterface> cam)
   writeThread(nullptr),
   cam(cam)
 {
+  depthCompressBuffer.resize(cam->width * cam->height * sizeof(uint16_t) * 4);
+  rgbCompressBuffer.resize(cam->width * cam->height * 3 * 4);
 }
 
 Logger::~Logger()
@@ -70,13 +76,35 @@ void Logger::write()
     int bufferIdx = lastDepth % CameraInterface::numBuffers;
     if(bufferIdx == lastWrittenBufferIdx)
       continue;
-    
+
+    int32_t depthSize = cam->width * cam->height * sizeof(uint16_t);
     const void *depthData = cam->frameBuffers[bufferIdx].first.first;
+    int32_t rgbSize = cam->width * cam->height * 3 * sizeof(uint8_t);
     const void *rgbData = cam->frameBuffers[bufferIdx].first.second;
 
+#ifdef WITH_ZLIB
+    uLongf depthCompressedSize = static_cast<uLongf>(depthCompressBuffer.size());
+
+    std::thread depthCompressThread(compress2,
+      depthCompressBuffer.data(),&depthCompressedSize,
+      (Bytef *)depthData,depthSize,Z_BEST_SPEED);
+
+    depthCompressThread.join();
+
+    depthData = depthCompressBuffer.data();
+    depthSize = static_cast<int32_t>(depthCompressedSize);
+#endif
+
+#ifdef WITH_JPEG
+    std::thread rgbCompressThread(&Logger::compressJpeg,this,
+      (uint8_t*)rgbData,&rgbSize);
+
+    rgbCompressThread.join();
+
+    rgbData = rgbCompressBuffer.data();
+#endif
+
     int64_t currTimestamp = cam->frameBuffers[bufferIdx].second;
-    int32_t depthSize = cam->width * cam->height * sizeof(uint16_t);
-    int32_t rgbSize = cam->width * cam->height * 3 * sizeof(uint8_t);
 
     file.write((char*)&currTimestamp,sizeof(int64_t));
     file.write((char*)&depthSize,sizeof(int32_t));
@@ -87,4 +115,41 @@ void Logger::write()
     lastWrittenBufferIdx = bufferIdx;
     nFrames++;
   }
+}
+
+// Implemented based on example.c provided by libjpeg
+void Logger::compressJpeg(const uint8_t *source,int32_t *finalSize)
+{
+#ifdef WITH_JPEG
+  struct jpeg_compress_struct cinfo;
+  struct jpeg_error_mgr jerr;
+  cinfo.err = jpeg_std_error(&jerr);
+
+  jpeg_create_compress(&cinfo);
+  uint8_t *outData = &rgbCompressBuffer[0];
+  unsigned long outSize = static_cast<unsigned long>(rgbCompressBuffer.size());
+  jpeg_mem_dest(&cinfo,&outData,&outSize);
+
+  cinfo.image_width = static_cast<JDIMENSION>(cam->width);
+  cinfo.image_height = static_cast<JDIMENSION>(cam->height);
+  cinfo.input_components = 3;
+  cinfo.in_color_space = JCS_RGB;
+
+  jpeg_set_defaults(&cinfo);
+  jpeg_set_quality(&cinfo,90,TRUE);
+
+  jpeg_start_compress(&cinfo,TRUE);
+  JSAMPROW row_pointer[1];
+  while(cinfo.next_scanline < cinfo.image_height)
+  {
+    row_pointer[0] = (unsigned char*)
+      &source[cinfo.next_scanline * cinfo.image_width *  cinfo.input_components];
+    jpeg_write_scanlines(&cinfo,row_pointer,1);
+  }
+
+  jpeg_finish_compress(&cinfo);
+  jpeg_destroy_compress(&cinfo);
+
+  *finalSize = static_cast<int32_t>(outSize);
+#endif
 }
