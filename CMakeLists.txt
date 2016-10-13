@@ -27,6 +27,16 @@ if(WITH_ZLIB)
   set(EXTRA_LIBS ${EXTRA_LIBS} ${ZLIB_LIBRARY})
 endif()
 
+find_package(JPEG QUIET)
+CANONIFY_BOOL(JPEG_FOUND)
+message(STATUS "libjpeg found: ${JPEG_FOUND}")
+option(WITH_JPEG "Build with libjpeg support? (strongly recommended)" ${JPEG_FOUND})
+if(WITH_JPEG)
+  add_definitions(-DWITH_JPEG)
+  set(EXTRA_INCL ${EXTRA_INCL} ${JPEG_INCLUDE_DIR})
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${JPEG_LIBRARY})
+endif()
+
 include_directories(
     ${GLUT_INCLUDE_DIR}
 	${REALSENSE_INCLUDE_DIR}

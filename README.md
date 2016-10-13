@@ -6,3 +6,4 @@ Dependencies:
 * librealsense
 * freeglut
 * zlib (optional strongly recommended)
+* libjpeg (optional strongly recommended)

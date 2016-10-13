@@ -17,6 +17,7 @@ Logger::Logger(string outDir,std::shared_ptr<CameraInterface> cam)
   cam(cam)
 {
   depthCompressBuffer.resize(cam->width * cam->height * sizeof(uint16_t) * 4);
+  rgbCompressBuffer.resize(cam->width * cam->height * 3 * 4);
 }
 
 Logger::~Logger()
@@ -94,6 +95,15 @@ void Logger::write()
     depthSize = static_cast<int32_t>(depthCompressedSize);
 #endif
 
+#ifdef WITH_JPEG
+    std::thread rgbCompressThread(&Logger::compressJpeg,this,
+      (uint8_t*)rgbData,&rgbSize);
+
+    rgbCompressThread.join();
+
+    rgbData = rgbCompressBuffer.data();
+#endif
+
     int64_t currTimestamp = cam->frameBuffers[bufferIdx].second;
 
     file.write((char*)&currTimestamp,sizeof(int64_t));
@@ -105,4 +115,41 @@ void Logger::write()
     lastWrittenBufferIdx = bufferIdx;
     nFrames++;
   }
+}
+
+// Implemented based on example.c provided by libjpeg
+void Logger::compressJpeg(const uint8_t *source,int32_t *finalSize)
+{
+#ifdef WITH_JPEG
+  struct jpeg_compress_struct cinfo;
+  struct jpeg_error_mgr jerr;
+  cinfo.err = jpeg_std_error(&jerr);
+
+  jpeg_create_compress(&cinfo);
+  uint8_t *outData = &rgbCompressBuffer[0];
+  unsigned long outSize = static_cast<unsigned long>(rgbCompressBuffer.size());
+  jpeg_mem_dest(&cinfo,&outData,&outSize);
+
+  cinfo.image_width = static_cast<JDIMENSION>(cam->width);
+  cinfo.image_height = static_cast<JDIMENSION>(cam->height);
+  cinfo.input_components = 3;
+  cinfo.in_color_space = JCS_RGB;
+
+  jpeg_set_defaults(&cinfo);
+  jpeg_set_quality(&cinfo,90,TRUE);
+
+  jpeg_start_compress(&cinfo,TRUE);
+  JSAMPROW row_pointer[1];
+  while(cinfo.next_scanline < cinfo.image_height)
+  {
+    row_pointer[0] = (unsigned char*)
+      &source[cinfo.next_scanline * cinfo.image_width *  cinfo.input_components];
+    jpeg_write_scanlines(&cinfo,row_pointer,1);
+  }
+
+  jpeg_finish_compress(&cinfo);
+  jpeg_destroy_compress(&cinfo);
+
+  *finalSize = static_cast<int32_t>(outSize);
+#endif
 }
