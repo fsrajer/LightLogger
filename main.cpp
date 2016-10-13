@@ -17,8 +17,6 @@ using std::vector;
 #define FPS 30
 
 std::unique_ptr<CameraInterface> cam;
-vector<uint16_t> depthBuffer;
-vector<uint8_t> rgbBuffer;
 
 void displayCallback()
 {
@@ -28,8 +26,8 @@ void displayCallback()
     return;
   }
   int bufferIdx = lastDepth % CameraInterface::numBuffers;
-  memcpy(depthBuffer.data(),cam->frameBuffers[bufferIdx].first.first,WIDTH*HEIGHT*sizeof(uint16_t));
-  memcpy(rgbBuffer.data(),cam->frameBuffers[bufferIdx].first.second,WIDTH*HEIGHT*3*sizeof(uint8_t));
+  const void *depthData = cam->frameBuffers[bufferIdx].first.first;
+  const void *rgbData = cam->frameBuffers[bufferIdx].first.second;
 
   glClear(GL_COLOR_BUFFER_BIT);
   glPixelZoom(1,-1);
@@ -37,12 +35,12 @@ void displayCallback()
   // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
   glRasterPos2f(-1,1);
   glPixelTransferf(GL_RED_SCALE,0xFFFF * cam->depthScale() / 2.0f);
-  glDrawPixels(WIDTH,HEIGHT,GL_RED,GL_UNSIGNED_SHORT,depthBuffer.data());
+  glDrawPixels(WIDTH,HEIGHT,GL_RED,GL_UNSIGNED_SHORT,depthData);
   glPixelTransferf(GL_RED_SCALE,1.0f);
 
   // Display color image as RGB triples
   glRasterPos2f(0,1);
-  glDrawPixels(WIDTH,HEIGHT,GL_RGB,GL_UNSIGNED_BYTE,rgbBuffer.data());
+  glDrawPixels(WIDTH,HEIGHT,GL_RGB,GL_UNSIGNED_BYTE,rgbData);
 
   glutSwapBuffers();
 }
@@ -54,8 +52,6 @@ void idleCallback()
 int main(int argc,char *argv[])
 {
   cam = std::make_unique<RealSenseInterface>(WIDTH,HEIGHT,FPS);
-  depthBuffer.resize(WIDTH*HEIGHT);
-  rgbBuffer.resize(WIDTH*HEIGHT*3);
 
   glutInit(&argc,argv);
 
