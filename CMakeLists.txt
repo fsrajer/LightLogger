@@ -14,7 +14,12 @@ include_directories(
 	${REALSENSE_INCLUDE_DIR}
 )
   
-add_executable(LoggerRealSense main.cpp)
+add_executable(LoggerRealSense 
+				main.cpp
+				CameraInterface.h
+				RealSenseInterface.cpp
+				RealSenseInterface.h
+)
 
 target_link_libraries(LoggerRealSense
 					  ${GLUT_LIBRARY}
