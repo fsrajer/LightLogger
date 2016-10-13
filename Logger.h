@@ -2,9 +2,12 @@
 
 #include <string>
 #include <atomic>
+#include <memory>
 #include <cstdint>
 #include <fstream>
 #include <thread>
+
+#include "CameraInterface.h"
 
 using std::string;
 
@@ -23,7 +26,7 @@ using std::string;
 class Logger
 {
 public:
-  Logger(string outDir);
+  Logger(string outDir,std::shared_ptr<CameraInterface> cam);
   ~Logger();
 
   bool isWriting() const
@@ -39,9 +42,9 @@ private:
 
   std::atomic<bool> doWrite;
   string outDir;
-  int64_t lastTimestamp;
   int32_t nFrames;
   int fileId;
   std::ofstream file;
   std::thread *writeThread;
+  std::shared_ptr<CameraInterface> cam;
 };

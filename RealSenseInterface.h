@@ -16,8 +16,6 @@ public:
   RealSenseInterface(int width = 640,int height = 480,int fps = 30);
   virtual ~RealSenseInterface();
 
-  const int width,height,fps;
-
   virtual bool ok()
   {
     return initSuccessful;

@@ -4,12 +4,13 @@
 
 using std::cout;
 
-Logger::Logger(string outDir)
+Logger::Logger(string outDir,std::shared_ptr<CameraInterface> cam)
   :
   doWrite(false),
   outDir(outDir),
   fileId(0),
-  writeThread(nullptr)
+  writeThread(nullptr),
+  cam(cam)
 {
 }
 
@@ -25,7 +26,6 @@ void Logger::startWriting()
 {
   cout << "Starting writing.\n";
   doWrite = true;
-  lastTimestamp = -1;
   nFrames = 0;
 
   string fn = outDir + "/seq" + std::to_string(fileId++) + ".klg";
@@ -58,5 +58,33 @@ void Logger::stopWriting()
 
 void Logger::write()
 {
-  cout << "Writing.\n";
+  static int lastWrittenBufferIdx = -1;
+  while(doWrite)
+  {
+    std::this_thread::sleep_for(std::chrono::microseconds(1000));
+
+    int lastDepth = cam->latestDepthIndex;
+    if(lastDepth == -1)
+      continue;
+
+    int bufferIdx = lastDepth % CameraInterface::numBuffers;
+    if(bufferIdx == lastWrittenBufferIdx)
+      continue;
+    
+    const void *depthData = cam->frameBuffers[bufferIdx].first.first;
+    const void *rgbData = cam->frameBuffers[bufferIdx].first.second;
+
+    int64_t currTimestamp = cam->frameBuffers[bufferIdx].second;
+    int32_t depthSize = cam->width * cam->height * sizeof(uint16_t);
+    int32_t rgbSize = cam->width * cam->height * 3 * sizeof(uint8_t);
+
+    file.write((char*)&currTimestamp,sizeof(int64_t));
+    file.write((char*)&depthSize,sizeof(int32_t));
+    file.write((char*)&rgbSize,sizeof(int32_t));
+    file.write((char*)depthData,depthSize);
+    file.write((char*)rgbData,rgbSize);
+
+    lastWrittenBufferIdx = bufferIdx;
+    nFrames++;
+  }
 }

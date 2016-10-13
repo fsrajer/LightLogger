@@ -2,9 +2,8 @@
 #include <functional>
 
 RealSenseInterface::RealSenseInterface(int inWidth,int inHeight,int inFps)
-  : width(inWidth),
-  height(inHeight),
-  fps(inFps),
+  : 
+  CameraInterface(inWidth,inHeight,inFps),
   dev(nullptr),
   initSuccessful(true)
 {

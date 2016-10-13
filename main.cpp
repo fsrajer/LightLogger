@@ -17,7 +17,7 @@ using std::string;
 const static int width = 640;
 const static int height = 480;
 const static int fps = 30;
-std::unique_ptr<CameraInterface> cam;
+std::shared_ptr<CameraInterface> cam;
 std::unique_ptr<Logger> logger;
 
 void displayCallback()
@@ -84,8 +84,8 @@ int main(int argc,char *argv[])
   if(argc > 1)
     outDir = argv[1];
 
-  cam = std::make_unique<RealSenseInterface>(width,height,fps);
-  logger = std::make_unique<Logger>(outDir);
+  cam = std::make_shared<RealSenseInterface>(width,height,fps);
+  logger = std::make_unique<Logger>(outDir,cam);
 
   glutInit(&argc,argv);
 
