@@ -19,6 +19,8 @@ add_executable(LoggerRealSense
 				CameraInterface.h
 				RealSenseInterface.cpp
 				RealSenseInterface.h
+				Logger.cpp
+				Logger.h
 )
 
 target_link_libraries(LoggerRealSense

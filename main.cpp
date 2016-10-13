@@ -9,6 +9,7 @@
 
 #include "CameraInterface.h"
 #include "RealSenseInterface.h"
+#include "Logger.h"
 
 using std::cout;
 using std::vector;
@@ -17,6 +18,7 @@ const static int width = 640;
 const static int height = 480;
 const static int fps = 30;
 std::unique_ptr<CameraInterface> cam;
+std::unique_ptr<Logger> logger;
 
 void displayCallback()
 {
@@ -52,6 +54,10 @@ void idleCallback()
 void endApp()
 {
   glutLeaveMainLoop();
+  if(logger->isWriting())
+  {
+    logger->stopWriting();
+  }
 }
 
 void keyboardCallback(unsigned char keyPressed,int mouseX,int mouseY)
@@ -61,11 +67,12 @@ void keyboardCallback(unsigned char keyPressed,int mouseX,int mouseY)
   case 27:
     endApp();
     break;
-  /*case 'r':
-    if(!lastPressStateKeyR)
-      restartGame();
-    lastPressStateKeyR = true;
-    break;*/
+  case 'r':
+    if(logger->isWriting())
+      logger->stopWriting();
+    else
+      logger->startWriting();
+    break;
   default:
     break;
   }
@@ -74,6 +81,7 @@ void keyboardCallback(unsigned char keyPressed,int mouseX,int mouseY)
 int main(int argc,char *argv[])
 {
   cam = std::make_unique<RealSenseInterface>(width,height,fps);
+  logger = std::make_unique<Logger>();
 
   glutInit(&argc,argv);
 
