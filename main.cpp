@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include "GL/glut.h"
+#include "GL/freeglut.h"
 #include "librealsense/rs.hpp"
 
 #include "CameraInterface.h"
@@ -49,6 +50,28 @@ void idleCallback()
   glutPostRedisplay();
 }
 
+void endApp()
+{
+  glutLeaveMainLoop();
+}
+
+void keyboardCallback(unsigned char keyPressed,int mouseX,int mouseY)
+{
+  switch(keyPressed)
+  {
+  case 27:
+    endApp();
+    break;
+  /*case 'r':
+    if(!lastPressStateKeyR)
+      restartGame();
+    lastPressStateKeyR = true;
+    break;*/
+  default:
+    break;
+  }
+}
+
 int main(int argc,char *argv[])
 {
   cam = std::make_unique<RealSenseInterface>(WIDTH,HEIGHT,FPS);
@@ -60,10 +83,9 @@ int main(int argc,char *argv[])
 
   glutCreateWindow("LoggerRealSense");
 
-  //glutKeyboardFunc(keyboardCallback);
+  glutKeyboardFunc(keyboardCallback);
   glutDisplayFunc(displayCallback);
   glutIdleFunc(idleCallback);
-  
 
   glutMainLoop();
 }
