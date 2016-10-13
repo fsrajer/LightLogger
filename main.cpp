@@ -13,10 +13,9 @@
 using std::cout;
 using std::vector;
 
-#define WIDTH 640
-#define HEIGHT 480
-#define FPS 30
-
+const static int width = 640;
+const static int height = 480;
+const static int fps = 30;
 std::unique_ptr<CameraInterface> cam;
 
 void displayCallback()
@@ -36,12 +35,12 @@ void displayCallback()
   // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
   glRasterPos2f(-1,1);
   glPixelTransferf(GL_RED_SCALE,0xFFFF * cam->depthScale() / 2.0f);
-  glDrawPixels(WIDTH,HEIGHT,GL_RED,GL_UNSIGNED_SHORT,depthData);
+  glDrawPixels(width,height,GL_RED,GL_UNSIGNED_SHORT,depthData);
   glPixelTransferf(GL_RED_SCALE,1.0f);
 
   // Display color image as RGB triples
   glRasterPos2f(0,1);
-  glDrawPixels(WIDTH,HEIGHT,GL_RGB,GL_UNSIGNED_BYTE,rgbData);
+  glDrawPixels(width,height,GL_RGB,GL_UNSIGNED_BYTE,rgbData);
 
   glutSwapBuffers();
 }
@@ -74,12 +73,12 @@ void keyboardCallback(unsigned char keyPressed,int mouseX,int mouseY)
 
 int main(int argc,char *argv[])
 {
-  cam = std::make_unique<RealSenseInterface>(WIDTH,HEIGHT,FPS);
+  cam = std::make_unique<RealSenseInterface>(width,height,fps);
 
   glutInit(&argc,argv);
 
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE); // | GLUT_DEPTH
-  glutInitWindowSize(WIDTH*2,HEIGHT);
+  glutInitWindowSize(width*2,height);
 
   glutCreateWindow("LoggerRealSense");
 
