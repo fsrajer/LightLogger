@@ -1,6 +1,6 @@
 #include <iostream>
 #include <memory>
-#include <vector>
+#include <string>
 #include <cstdint>
 
 #include "GL/glut.h"
@@ -12,7 +12,7 @@
 #include "Logger.h"
 
 using std::cout;
-using std::vector;
+using std::string;
 
 const static int width = 640;
 const static int height = 480;
@@ -80,8 +80,12 @@ void keyboardCallback(unsigned char keyPressed,int mouseX,int mouseY)
 
 int main(int argc,char *argv[])
 {
+  string outDir = "";
+  if(argc > 1)
+    outDir = argv[1];
+
   cam = std::make_unique<RealSenseInterface>(width,height,fps);
-  logger = std::make_unique<Logger>();
+  logger = std::make_unique<Logger>(outDir);
 
   glutInit(&argc,argv);
 

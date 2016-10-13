@@ -1,11 +1,16 @@
 #pragma once
 
+#include <string>
 #include <atomic>
+#include <cstdint>
+#include <fstream>
+#include <thread>
 
 class Logger
 {
 public:
-  Logger();
+  Logger(string outDir);
+  ~Logger();
 
   bool isWriting() const
   {
@@ -16,5 +21,13 @@ public:
   void stopWriting();
 
 private:
+  void write();
+
   std::atomic<bool> doWrite;
+  string outDir;
+  int64_t lastTimestamp;
+  int32_t nFrames;
+  int fileId;
+  std::ofstream file;
+  std::thread *writeThread;
 };
