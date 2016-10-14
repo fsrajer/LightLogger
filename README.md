@@ -14,10 +14,10 @@ Stream is saved into the output directory in a file seq0. You can record multipl
 
 ## Dependencies ##
 
-* librealsense
-* freeglut
-* zlib (optional but strongly recommended)
-* libjpeg (optional but strongly recommended)
+* [librealsense](https://github.com/IntelRealSense/librealsense)
+* [freeglut](http://freeglut.sourceforge.net/)
+* [zlib](https://github.com/madler/zlib.git) (optional but strongly recommended)
+* [libjpeg](https://github.com/LuaDist/libjpeg.git) (optional but strongly recommended)
 
 ## License ##
 
