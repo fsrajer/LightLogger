@@ -18,3 +18,7 @@ Stream is saved into the output directory in a file seq0. You can record multipl
 * freeglut
 * zlib (optional but strongly recommended)
 * libjpeg (optional but strongly recommended)
+
+## License ##
+
+This software is under the BSD 3-Clause License. See LICENSE.txt.
