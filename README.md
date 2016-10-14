@@ -1,20 +1,20 @@
-Lightweigth program for saving depth and color streams from Intel RealSense camera into .klg format for ElasticFusion:
+# LoggerRealSense #
 
-https://github.com/mp3guy/ElasticFusion
+Lightweigth program for saving depth and color streams from Intel RealSense camera into .klg format for [ElasticFusion](https://github.com/mp3guy/ElasticFusion). 
+Inspired by [Logger2] (https://github.com/mp3guy/Logger2)
 
+## Controls ##
 
-Inspired by logger2:
+```bash
+LoggerRealSense.exe c:/path/to/output/dir
+```
 
-https://github.com/mp3guy/Logger2
+Press button R to start recording and press it again to stop. 
+Stream is saved into the output directory in a file seq0. You can record multiple videos; the seq id will be automatically increased.
 
-
-How to run:
-
-Press button R to start recording and press it again to stop.
-
-Dependencies:
+## Dependencies ##
 
 * librealsense
 * freeglut
-* zlib (optional strongly recommended)
-* libjpeg (optional strongly recommended)
+* zlib (optional but strongly recommended)
+* libjpeg (optional but strongly recommended)
