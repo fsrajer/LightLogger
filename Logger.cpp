@@ -8,14 +8,16 @@
 
 using std::cout;
 
-Logger::Logger(string outDir,std::shared_ptr<CameraInterface> cam)
+Logger::Logger(string outDir_,std::shared_ptr<CameraInterface> cam)
   :
   doWrite(false),
-  outDir(outDir),
+  outDir(outDir_),
   fileId(0),
   writeThread(nullptr),
   cam(cam)
 {
+  if(!outDir.empty() && outDir[outDir.size()-1] != '/' && outDir[outDir.size()-1] != '\\')
+    outDir += "/";
   depthCompressBuffer.resize(cam->width * cam->height * sizeof(uint16_t) * 4);
   rgbCompressBuffer.resize(cam->width * cam->height * 3 * 4);
 }
@@ -34,7 +36,7 @@ void Logger::startWriting()
   doWrite = true;
   nFrames = 0;
 
-  string fn = outDir + "/seq" + std::to_string(fileId++) + ".klg";
+  string fn = outDir + "seq" + std::to_string(fileId++) + ".klg";
   file.open(fn,std::ios::binary);
   if(!file.is_open())
   {
