@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(LoggerRealSense)
+project(LightLogger)
 
 include(FindPackageHandleStandardArgs)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -43,7 +43,7 @@ include_directories(
 	${EXTRA_INCL}
 )
   
-add_executable(LoggerRealSense 
+add_executable(LightLogger 
 				main.cpp
 				CameraInterface.h
 				RealSenseInterface.cpp
@@ -52,11 +52,11 @@ add_executable(LoggerRealSense
 				Logger.h
 )
 
-target_link_libraries(LoggerRealSense
+target_link_libraries(LightLogger
 					  ${GLUT_LIBRARY}
 					  ${REALSENSE_LIBRARY}
 					  ${EXTRA_LIBS}
 )
 
-install(TARGETS LoggerRealSense 
+install(TARGETS LightLogger 
 		DESTINATION bin)
