@@ -5,7 +5,6 @@
 
 #include "GL/glut.h"
 #include "GL/freeglut.h"
-#include "librealsense/rs.hpp"
 
 #include "CameraInterface.h"
 #include "RealSenseInterface.h"
@@ -84,7 +83,14 @@ int main(int argc,char *argv[])
   if(argc > 1)
     outDir = argv[1];
 
+#ifdef WITH_REALSENSE
   cam = std::make_shared<RealSenseInterface>(width,height,fps);
+#else
+  std::cerr << "ERROR: Compiled without any camera support.\n";
+  cam = nullptr;
+  return EXIT_FAILURE;
+#endif
+
   logger = std::make_unique<Logger>(outDir,cam);
 
   glutInit(&argc,argv);

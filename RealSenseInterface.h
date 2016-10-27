@@ -1,5 +1,7 @@
 #pragma once
 
+#ifdef WITH_REALSENSE
+
 #include <string>
 #include <iostream>
 #include <algorithm>
@@ -134,3 +136,4 @@ private:
   int64_t lastDepthTime;
 
 };
+#endif

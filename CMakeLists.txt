@@ -15,7 +15,17 @@ endmacro()
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
-find_package(RealSense REQUIRED)
+
+
+find_package(RealSense QUIET)
+CANONIFY_BOOL(REALSENSE_FOUND)
+message(STATUS "librealsense found: ${REALSENSE_FOUND}")
+option(WITH_REALSENSE "Build with librealsense support?" ${REALSENSE_FOUND})
+if(WITH_REALSENSE)
+  add_definitions(-DWITH_REALSENSE)
+  set(EXTRA_INCL ${EXTRA_INCL} ${REALSENSE_INCLUDE_DIR})
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${REALSENSE_LIBRARY})
+endif()
 
 find_package(ZLIB QUIET)
 CANONIFY_BOOL(ZLIB_FOUND)
@@ -39,7 +49,6 @@ endif()
 
 include_directories(
     ${GLUT_INCLUDE_DIR}
-	${REALSENSE_INCLUDE_DIR}
 	${EXTRA_INCL}
 )
   
@@ -54,7 +63,6 @@ add_executable(LightLogger
 
 target_link_libraries(LightLogger
 					  ${GLUT_LIBRARY}
-					  ${REALSENSE_LIBRARY}
 					  ${EXTRA_LIBS}
 )
 
