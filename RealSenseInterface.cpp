@@ -1,4 +1,7 @@
 #include "RealSenseInterface.h"
+
+#ifdef WITH_REALSENSE
+
 #include <functional>
 
 RealSenseInterface::RealSenseInterface(int inWidth,int inHeight,int inFps)
@@ -74,3 +77,5 @@ RealSenseInterface::~RealSenseInterface()
     delete depthCallback;
   }
 }
+
+#endif

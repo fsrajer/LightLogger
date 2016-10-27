@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6)
 
-project(LoggerRealSense)
+project(LightLogger)
 
 include(FindPackageHandleStandardArgs)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake)
@@ -15,7 +15,27 @@ endmacro()
 
 find_package(OpenGL REQUIRED)
 find_package(GLUT REQUIRED)
-find_package(RealSense REQUIRED)
+
+
+find_package(RealSense QUIET)
+CANONIFY_BOOL(REALSENSE_FOUND)
+message(STATUS "librealsense found: ${REALSENSE_FOUND}")
+option(WITH_REALSENSE "Build with librealsense support?" ${REALSENSE_FOUND})
+if(WITH_REALSENSE)
+  add_definitions(-DWITH_REALSENSE)
+  set(EXTRA_INCL ${EXTRA_INCL} ${REALSENSE_INCLUDE_DIR})
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${REALSENSE_LIBRARY})
+endif()
+
+find_package(OpenNI2 QUIET)
+CANONIFY_BOOL(OPENNI2_FOUND)
+message(STATUS "OpenNI2 found: ${OPENNI2_FOUND}")
+option(WITH_OPENNI2 "Build with OpenNI2 support?" ${OPENNI2_FOUND})
+if(WITH_OPENNI2)
+  add_definitions(-DWITH_OPENNI2)
+  set(EXTRA_INCL ${EXTRA_INCL} ${OPENNI2_INCLUDE_DIR})
+  set(EXTRA_LIBS ${EXTRA_LIBS} ${OPENNI2_LIBRARY})
+endif()
 
 find_package(ZLIB QUIET)
 CANONIFY_BOOL(ZLIB_FOUND)
@@ -39,24 +59,24 @@ endif()
 
 include_directories(
     ${GLUT_INCLUDE_DIR}
-	${REALSENSE_INCLUDE_DIR}
 	${EXTRA_INCL}
 )
   
-add_executable(LoggerRealSense 
+add_executable(LightLogger 
 				main.cpp
 				CameraInterface.h
 				RealSenseInterface.cpp
 				RealSenseInterface.h
+				OpenNI2Interface.cpp
+				OpenNI2Interface.h
 				Logger.cpp
 				Logger.h
 )
 
-target_link_libraries(LoggerRealSense
+target_link_libraries(LightLogger
 					  ${GLUT_LIBRARY}
-					  ${REALSENSE_LIBRARY}
 					  ${EXTRA_LIBS}
 )
 
-install(TARGETS LoggerRealSense 
+install(TARGETS LightLogger 
 		DESTINATION bin)

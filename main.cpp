@@ -5,10 +5,10 @@
 
 #include "GL/glut.h"
 #include "GL/freeglut.h"
-#include "librealsense/rs.hpp"
 
 #include "CameraInterface.h"
 #include "RealSenseInterface.h"
+#include "OpenNI2Interface.h"
 #include "Logger.h"
 
 using std::cout;
@@ -17,6 +17,7 @@ using std::string;
 const static int width = 640;
 const static int height = 480;
 const static int fps = 30;
+const static bool flipRows = true; // mirroring every row - for openni only
 std::shared_ptr<CameraInterface> cam;
 std::unique_ptr<Logger> logger;
 
@@ -84,7 +85,16 @@ int main(int argc,char *argv[])
   if(argc > 1)
     outDir = argv[1];
 
+#ifdef WITH_REALSENSE
   cam = std::make_shared<RealSenseInterface>(width,height,fps);
+#elif defined WITH_OPENNI2
+  cam = std::make_shared<OpenNI2Interface>(flipRows,width,height,fps);
+#else
+  std::cerr << "ERROR: Compiled without any camera support.\n";
+  cam = nullptr;
+  return EXIT_FAILURE;
+#endif
+
   logger = std::make_unique<Logger>(outDir,cam);
 
   glutInit(&argc,argv);
