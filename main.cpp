@@ -37,7 +37,7 @@ void displayCallback()
 
   // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
   glRasterPos2f(-1,1);
-  glPixelTransferf(GL_RED_SCALE,0xFFFF * cam->depthScale() / 2.0f);
+  glPixelTransferf(GL_RED_SCALE,0xFFFF * cam->depthScale() / 3.0f);
   glDrawPixels(width,height,GL_RED,GL_UNSIGNED_SHORT,depthData);
   glPixelTransferf(GL_RED_SCALE,1.0f);
 
