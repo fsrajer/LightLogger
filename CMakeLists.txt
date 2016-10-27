@@ -67,6 +67,8 @@ add_executable(LightLogger
 				CameraInterface.h
 				RealSenseInterface.cpp
 				RealSenseInterface.h
+				OpenNI2Interface.cpp
+				OpenNI2Interface.h
 				Logger.cpp
 				Logger.h
 )

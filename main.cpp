@@ -8,6 +8,7 @@
 
 #include "CameraInterface.h"
 #include "RealSenseInterface.h"
+#include "OpenNI2Interface.h"
 #include "Logger.h"
 
 using std::cout;
@@ -85,6 +86,8 @@ int main(int argc,char *argv[])
 
 #ifdef WITH_REALSENSE
   cam = std::make_shared<RealSenseInterface>(width,height,fps);
+#elif defined WITH_OPENNI2
+  cam = std::make_shared<OpenNI2Interface>(false,width,height,fps);
 #else
   std::cerr << "ERROR: Compiled without any camera support.\n";
   cam = nullptr;
