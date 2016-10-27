@@ -14,17 +14,21 @@
 
 typedef struct { uint8_t r,g,b; } ColorType;
 
-/*template<typename T>
-void copyWithReversedRows(void *dst,const void* src,int height,int width)
+template<typename T>
+void copyWithReversedRows(void *destination,const void* source,int height,int width)
 {
-  Eigen::Map<const Eigen::Array<T,-1,-1,Eigen::RowMajor>> srcArray(
-    (const T*)(src),height,width);
-
-  Eigen::Map<Eigen::Array<T,-1,-1,Eigen::RowMajor>> dstArray(
-    (T*)(dst),height,width);
-
-  dstArray = srcArray.rowwise().reverse();
-}*/
+  // rowwise
+  T *dst = (T*)destination;
+  const T* src = (const T*)source;
+  
+  for(int i = 0; i < height; i++)
+  {
+    for(int j = 0; j < width; j++)
+    {
+      dst[width*i+(width-j-1)] = src[width*i+j];
+    }
+  }
+}
 
 class OpenNI2Interface : public CameraInterface
 {
@@ -72,10 +76,10 @@ public:
 
       int bufferIndex = (latestRgbIndex + 1) % numBuffers;
 
-      /*if(flipRows)
+      if(flipRows)
         copyWithReversedRows<ColorType>(rgbBuffers[bufferIndex].first,frame.getData(),
         frame.getHeight(),frame.getWidth());
-      else*/
+      else
         memcpy(rgbBuffers[bufferIndex].first,frame.getData(),frame.getHeight() * frame.getWidth() * 3);
 
       rgbBuffers[bufferIndex].second = lastRgbTime;
@@ -120,10 +124,10 @@ public:
 
       int bufferIndex = (latestDepthIndex + 1) % numBuffers;
 
-      /*if(flipRows)
+      if(flipRows)
         copyWithReversedRows<uint16_t>(frameBuffers[bufferIndex].first.first,frame.getData(),
         frame.getHeight(),frame.getWidth());
-      else*/
+      else
         memcpy(frameBuffers[bufferIndex].first.first,frame.getData(),frame.getHeight()*frame.getWidth()*2);
 
       frameBuffers[bufferIndex].second = lastDepthTime;

@@ -17,6 +17,7 @@ using std::string;
 const static int width = 640;
 const static int height = 480;
 const static int fps = 30;
+const static bool flipRows = true; // mirroring every row - for openni only
 std::shared_ptr<CameraInterface> cam;
 std::unique_ptr<Logger> logger;
 
@@ -87,7 +88,7 @@ int main(int argc,char *argv[])
 #ifdef WITH_REALSENSE
   cam = std::make_shared<RealSenseInterface>(width,height,fps);
 #elif defined WITH_OPENNI2
-  cam = std::make_shared<OpenNI2Interface>(false,width,height,fps);
+  cam = std::make_shared<OpenNI2Interface>(flipRows,width,height,fps);
 #else
   std::cerr << "ERROR: Compiled without any camera support.\n";
   cam = nullptr;
