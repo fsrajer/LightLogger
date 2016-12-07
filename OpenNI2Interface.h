@@ -158,6 +158,10 @@ public:
   };
 
 private:
+  bool isModeSupported(const openni::VideoStream& stream,const openni::VideoMode& mode);
+  void printModes(const openni::VideoStream& stream,const openni::VideoMode& requestedMode);
+  void printMode(const openni::VideoMode& mode);
+
   const bool flipRows;
 
   openni::Device device;
