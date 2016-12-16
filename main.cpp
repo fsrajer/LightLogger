@@ -14,8 +14,17 @@
 using std::cout;
 using std::string;
 
-const static int width = 640;
-const static int height = 480;
+#if 0 // is kinect 2?
+const static int depthWidth = 512;
+const static int depthHeight = 424;
+const static int rgbWidth = 960;
+const static int rgbHeight = 540;
+#else
+const static int depthWidth = 640;
+const static int depthHeight = 480;
+const static int rgbWidth = 640;
+const static int rgbHeight = 480;
+#endif
 const static int fps = 30;
 const static bool flipRows = true; // mirroring every row - for openni only
 std::shared_ptr<CameraInterface> cam;
@@ -38,12 +47,12 @@ void displayCallback()
   // Display depth data by linearly mapping depth between 0 and 2 meters to the red channel
   glRasterPos2f(-1,1);
   glPixelTransferf(GL_RED_SCALE,0xFFFF * cam->depthScale() / 3.0f);
-  glDrawPixels(width,height,GL_RED,GL_UNSIGNED_SHORT,depthData);
+  glDrawPixels(depthWidth,depthHeight,GL_RED,GL_UNSIGNED_SHORT,depthData);
   glPixelTransferf(GL_RED_SCALE,1.0f);
 
   // Display color image as RGB triples
   glRasterPos2f(0,1);
-  glDrawPixels(width,height,GL_RGB,GL_UNSIGNED_BYTE,rgbData);
+  glDrawPixels(rgbWidth,rgbHeight,GL_RGB,GL_UNSIGNED_BYTE,rgbData);
 
   glutSwapBuffers();
 }
@@ -86,9 +95,9 @@ int main(int argc,char *argv[])
     outDir = argv[1];
 
 #ifdef WITH_REALSENSE
-  cam = std::make_shared<RealSenseInterface>(width,height,fps);
+  cam = std::make_shared<RealSenseInterface>(depthWidth,depthHeight,fps);
 #elif defined WITH_OPENNI2
-  cam = std::make_shared<OpenNI2Interface>(flipRows,width,height,fps);
+  cam = std::make_shared<OpenNI2Interface>(flipRows,depthWidth,depthHeight,rgbWidth,rgbHeight,fps);
 #else
   std::cerr << "ERROR: Compiled without any camera support.\n";
   cam = nullptr;
@@ -100,7 +109,7 @@ int main(int argc,char *argv[])
   glutInit(&argc,argv);
 
   glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE); // | GLUT_DEPTH
-  glutInitWindowSize(width*2,height);
+  glutInitWindowSize(depthWidth+rgbWidth,std::max(depthHeight,rgbHeight));
 
   glutCreateWindow("LoggerRealSense");
 

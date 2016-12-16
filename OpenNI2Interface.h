@@ -33,7 +33,8 @@ void copyWithReversedRows(void *destination,const void* source,int height,int wi
 class OpenNI2Interface : public CameraInterface
 {
 public:
-  OpenNI2Interface(bool flipRows = false,int width = 640,int height = 480,int fps = 30);
+  OpenNI2Interface(bool flipRows = false,int depthWidth = 640,int depthHeight = 480,
+      int rgbWidth = 640, int rgbHeight = 480,int fps = 30);
   virtual ~OpenNI2Interface();
 
   virtual bool ok()
@@ -103,13 +104,15 @@ public:
       std::atomic<int> & latestRgbIndex,
       std::pair<uint8_t *,int64_t> * rgbBuffers,
       std::pair<std::pair<uint8_t *,uint8_t *>,int64_t> * frameBuffers,
-      bool flipRows)
+      bool flipRows,
+      int rgbPixels)
       : lastDepthTime(lastDepthTime),
       latestDepthIndex(latestDepthIndex),
       latestRgbIndex(latestRgbIndex),
       rgbBuffers(rgbBuffers),
       frameBuffers(frameBuffers),
-      flipRows(flipRows)
+      flipRows(flipRows),
+      rgbPixels(rgbPixels)
     {
     }
 
@@ -141,7 +144,7 @@ public:
 
       lastImageVal %= numBuffers;
 
-      memcpy(frameBuffers[bufferIndex].first.second,rgbBuffers[lastImageVal].first,frame.getWidth() * frame.getHeight() * 3);
+      memcpy(frameBuffers[bufferIndex].first.second,rgbBuffers[lastImageVal].first,rgbPixels * 3);
 
       latestDepthIndex++;
     }
@@ -155,6 +158,7 @@ public:
     std::pair<uint8_t *,int64_t> * rgbBuffers;
     std::pair<std::pair<uint8_t *,uint8_t *>,int64_t> * frameBuffers;
     bool flipRows;
+    int rgbPixels;
   };
 
 private:

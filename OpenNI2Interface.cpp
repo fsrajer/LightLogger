@@ -6,9 +6,10 @@
 
 using std::cout;
 
-OpenNI2Interface::OpenNI2Interface(bool flipRows,int inWidth,int inHeight,int inFps)
+OpenNI2Interface::OpenNI2Interface(bool flipRows,int inDepthWidth,int inDepthHeight,
+    int inRgbWidth,int inRgbHeight,int inFps)
   : 
-  CameraInterface(inWidth,inHeight,inFps),
+  CameraInterface(inDepthWidth,inDepthHeight,inRgbWidth,inRgbHeight,inFps),
   flipRows(flipRows),
   initSuccessful(false)
 {
@@ -41,12 +42,12 @@ OpenNI2Interface::OpenNI2Interface(bool flipRows,int inWidth,int inHeight,int in
   openni::VideoMode depthMode;
   depthMode.setFps(fps);
   depthMode.setPixelFormat(openni::PIXEL_FORMAT_DEPTH_1_MM);
-  depthMode.setResolution(width,height);
+  depthMode.setResolution(depthWidth,depthHeight);
 
   openni::VideoMode colorMode;
   colorMode.setFps(fps);
   colorMode.setPixelFormat(openni::PIXEL_FORMAT_RGB888);
-  colorMode.setResolution(width,height);
+  colorMode.setResolution(rgbWidth,rgbHeight);
 
   rc = depthStream.create(device,openni::SENSOR_DEPTH);
   rc = rgbStream.create(device,openni::SENSOR_COLOR);
@@ -96,14 +97,14 @@ OpenNI2Interface::OpenNI2Interface(bool flipRows,int inWidth,int inHeight,int in
 
   for(int i = 0; i < numBuffers; i++)
   {
-      uint8_t * newImage = (uint8_t *)calloc(width * height * 3,sizeof(uint8_t));
+      uint8_t * newImage = (uint8_t *)calloc(rgbWidth * rgbHeight * 3,sizeof(uint8_t));
       rgbBuffers[i] = std::pair<uint8_t *,int64_t>(newImage,0);
   }
 
   for(int i = 0; i < numBuffers; i++)
   {
-      uint8_t * newDepth = (uint8_t *)calloc(width * height * 2,sizeof(uint8_t));
-      uint8_t * newImage = (uint8_t *)calloc(width * height * 3,sizeof(uint8_t));
+      uint8_t * newDepth = (uint8_t *)calloc(depthWidth * depthHeight * 2,sizeof(uint8_t));
+      uint8_t * newImage = (uint8_t *)calloc(rgbWidth * rgbHeight * 3,sizeof(uint8_t));
       frameBuffers[i] = std::pair<std::pair<uint8_t *,uint8_t *>,int64_t>(std::pair<uint8_t *,uint8_t *>(newDepth,newImage),0);
   }
 
@@ -117,7 +118,8 @@ OpenNI2Interface::OpenNI2Interface(bool flipRows,int inWidth,int inHeight,int in
       latestRgbIndex,
       rgbBuffers,
       frameBuffers,
-      flipRows);
+      flipRows,
+      rgbWidth*rgbHeight);
 
   depthStream.setMirroringEnabled(false);
   rgbStream.setMirroringEnabled(false);

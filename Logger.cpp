@@ -18,8 +18,8 @@ Logger::Logger(string outDir_,std::shared_ptr<CameraInterface> cam)
 {
   if(!outDir.empty() && outDir[outDir.size()-1] != '/' && outDir[outDir.size()-1] != '\\')
     outDir += "/";
-  depthCompressBuffer.resize(cam->width * cam->height * sizeof(uint16_t) * 4);
-  rgbCompressBuffer.resize(cam->width * cam->height * 3 * 4);
+  depthCompressBuffer.resize(cam->depthWidth * cam->depthHeight * sizeof(uint16_t) * 4);
+  rgbCompressBuffer.resize(cam->rgbWidth * cam->rgbHeight * 3 * 4);
 }
 
 Logger::~Logger()
@@ -79,9 +79,9 @@ void Logger::write()
     if(bufferIdx == lastWrittenBufferIdx)
       continue;
 
-    int32_t depthSize = cam->width * cam->height * sizeof(uint16_t);
+    int32_t depthSize = cam->depthWidth * cam->depthHeight * sizeof(uint16_t);
     const void *depthData = cam->frameBuffers[bufferIdx].first.first;
-    int32_t rgbSize = cam->width * cam->height * 3 * sizeof(uint8_t);
+    int32_t rgbSize = cam->rgbWidth * cam->rgbHeight * 3 * sizeof(uint8_t);
     const void *rgbData = cam->frameBuffers[bufferIdx].first.second;
 
 #ifdef WITH_ZLIB
@@ -132,8 +132,8 @@ void Logger::compressJpeg(const uint8_t *source,int32_t *finalSize)
   unsigned long outSize = static_cast<unsigned long>(rgbCompressBuffer.size());
   jpeg_mem_dest(&cinfo,&outData,&outSize);
 
-  cinfo.image_width = static_cast<JDIMENSION>(cam->width);
-  cinfo.image_height = static_cast<JDIMENSION>(cam->height);
+  cinfo.image_width = static_cast<JDIMENSION>(cam->rgbWidth);
+  cinfo.image_height = static_cast<JDIMENSION>(cam->rgbHeight);
   cinfo.input_components = 3;
   cinfo.in_color_space = JCS_RGB;
 

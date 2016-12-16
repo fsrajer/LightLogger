@@ -18,22 +18,22 @@ RealSenseInterface::RealSenseInterface(int inWidth,int inHeight,int inFps)
   }
 
   dev = ctx.get_device(0);
-  dev->enable_stream(rs::stream::depth,width,height,rs::format::z16,fps);
-  dev->enable_stream(rs::stream::color,width,height,rs::format::rgb8,fps);
+  dev->enable_stream(rs::stream::depth,depthWidth,depthHeight,rs::format::z16,fps);
+  dev->enable_stream(rs::stream::color,depthWidth,depthHeight,rs::format::rgb8,fps);
 
   latestDepthIndex = -1;
   latestRgbIndex = -1;
 
   for(int i = 0; i < numBuffers; i++)
   {
-    uint8_t * newImage = (uint8_t *)calloc(width * height * 3,sizeof(uint8_t));
+    uint8_t * newImage = (uint8_t *)calloc(depthWidth * depthHeight * 3,sizeof(uint8_t));
     rgbBuffers[i] = std::pair<uint8_t *,int64_t>(newImage,0);
   }
 
   for(int i = 0; i < numBuffers; i++)
   {
-    uint8_t * newDepth = (uint8_t *)calloc(width * height * 2,sizeof(uint8_t));
-    uint8_t * newImage = (uint8_t *)calloc(width * height * 3,sizeof(uint8_t));
+    uint8_t * newDepth = (uint8_t *)calloc(depthWidth * depthHeight * 2,sizeof(uint8_t));
+    uint8_t * newImage = (uint8_t *)calloc(depthWidth * depthHeight * 3,sizeof(uint8_t));
     frameBuffers[i] = std::pair<std::pair<uint8_t *,uint8_t *>,int64_t>(std::pair<uint8_t *,uint8_t *>(newDepth,newImage),0);
   }
 
