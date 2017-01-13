@@ -15,7 +15,8 @@
 class RealSenseInterface : public CameraInterface
 {
 public:
-  RealSenseInterface(int width = 640,int height = 480,int fps = 30);
+    RealSenseInterface(int inDepthWidth,int inDepthHeight,
+        int inRgbWidth,int inRgbHeight,int fps = 30);
   virtual ~RealSenseInterface();
 
   virtual bool ok()
@@ -73,12 +74,15 @@ public:
       std::atomic<int> & latestDepthIndex,
       std::atomic<int> & latestRgbIndex,
       std::pair<uint8_t *,int64_t> * rgbBuffers,
-      std::pair<std::pair<uint8_t *,uint8_t *>,int64_t> * frameBuffers)
+      std::pair<std::pair<uint8_t *,uint8_t *>,int64_t> * frameBuffers,
+      int rgbWidth,int rgbHeight)
       : lastDepthTime(lastDepthTime),
       latestDepthIndex(latestDepthIndex),
       latestRgbIndex(latestRgbIndex),
       rgbBuffers(rgbBuffers),
-      frameBuffers(frameBuffers)
+      frameBuffers(frameBuffers),
+      rgbWidth(rgbWidth),
+      rgbHeight(rgbHeight)
     {
     }
 
@@ -105,7 +109,7 @@ public:
       lastImageVal %= numBuffers;
 
       memcpy(frameBuffers[bufferIndex].first.second,rgbBuffers[lastImageVal].first,
-        frame.get_width() * frame.get_height() * 3);
+        rgbWidth * rgbHeight * 3);
 
       latestDepthIndex++;
     }
@@ -117,6 +121,8 @@ public:
 
     std::pair<uint8_t *,int64_t> * rgbBuffers;
     std::pair<std::pair<uint8_t *,uint8_t *>,int64_t> * frameBuffers;
+
+    int rgbWidth,rgbHeight;
   };
 
 private:

@@ -95,7 +95,7 @@ int main(int argc,char *argv[])
     outDir = argv[1];
 
 #ifdef WITH_REALSENSE
-  cam = std::make_shared<RealSenseInterface>(depthWidth,depthHeight,fps);
+  cam = std::make_shared<RealSenseInterface>(depthWidth,depthHeight,rgbWidth,rgbHeight,fps);
 #elif defined WITH_OPENNI2
   cam = std::make_shared<OpenNI2Interface>(flipRows,depthWidth,depthHeight,rgbWidth,rgbHeight,fps);
 #else
